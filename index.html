@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Briefing météo</title>
+
+		<meta name="description" content="Une collecte automatique de données météo pour les alpes du sud">
+		<meta name="author" content="Marcos Ossedat, Baptiste DESPREZ, BFE, Billy, CPT, marc Terrier ...">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		
+		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> 
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="./plugin/gallery/gallery.css">
+        <link rel="stylesheet" href="./css/brief.css">
+        <script src="./js/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="js/moment-with-locales.min.js"></script>
+
+
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+			    <script>
+                    // le site notam de l'aviation civile n'accepte que 12 aérodromes maximum par requête.
+                    // en créant des secteurs d'un nombre maximum de 12 aérodromes, on arrive à nos fins.
+                    // Ajoutez autant de secteurs que besoin.
+                    var listeAeros = [
+                        { nom: 'Alpes du Sud',
+                          liste: ['LFMX','LFNS','LFNA','LFTM','LFNJ','LFTP','LFNF','LFNC','LFMR','LFMF']},
+                        { nom: 'Rhone',
+                          liste: ['LFJF','LFNH','LFJE','LFHE','LFLU','LFHD','LFKE']},
+                        { nom: 'Alpes du Nord',
+                          liste: ['LFLG','LFLE','LFKA','LFKA','LFKX','LFLJ','LFKD','LFKR','LFLP','LFHM','LFHZ']},
+            
+                    ];
+                    // liste des notams de FIR à afficher, (un devrait suffir dans la plupart des cas)
+                    var listeFIR = [
+                    { nom: 'FIR Marseille',
+                    liste: ['LFMM']},
+                    //{ nom: 'FIR Paris',
+                    //liste: ['LFFF']},
+                    ];
+            
+            
+                    // On initialise la date du jour pour tout le document
+                    var date = new Date();
+                    var timeSince1970 = date.getTime();
+                    var seconds = date.getUTCSeconds();
+                    var minutes = date.getUTCMinutes();
+                    var hours = date.getUTCHours();
+                    var day = date.getUTCDate();
+                    var month = date.getUTCMonth()+1;
+                    var year = date.getUTCFullYear();
+                    // faisons en sorte que le premier janvier à 8 heures 2 minutes soit 01/01/2016 08:02, et non 1/1/2016 8:2  ;-)
+                    if(hours.toString().length==1){var zero = '0'; hours = zero.concat(hours);}
+                    if(minutes.toString().length==1){var zero = '0'; minutes = zero.concat(minutes);}
+                    if(seconds.toString().length==1){var zero = '0'; seconds = zero.concat(seconds);}
+                    if(month.toString().length==1){var zero = '0'; month = zero.concat(month);}
+                    if(day.toString().length==1){var zero = '0'; day = zero.concat(day);}
+                    var ymd = year.toString().concat(month.toString().concat(day.toString()));
+
+                    function sleep(miliseconds) {
+                        var currentTime = new Date().getTime();
+                        while (currentTime + miliseconds >= new Date().getTime()) {
+                       }
+                    }
+			    </script>    
+			
+				<!-- PREMIER SLIDE -->
+				
+				<!-- une astuce qui permet de se connecter automatiquement au site de météo france pour accéder aux cartes des vent (utilisez votre login et mot de passe tel que décrit dans https://github.com/gabouls8/briefing-meteo/blob/master/README.md) -->
+				
+				<section>
+					<section>
+						<script>
+							//var dateTitleDay = null, dateTitleTime = null, date = null;
+							var update = function () {
+								date2 = moment(new Date())
+								$('#dateTitleTime').html(date2.format('HH:mm:ss'));
+							};
+							$(document).ready(function(){
+								//dateTitleDay = $('#dateTitleDay')
+								//dateTitleTime = $('#dateTitleTime')
+								$('#dateTitleDay').html(moment(date).locale('fr').format('dddd Do MMMM YYYY'));
+								update();
+								setInterval(update, 1000);
+							});
+						</script>
+						<h2>Briefing Cambrai</br></h2>
+						<h4>M&eacute;t&eacute;o    &nbsp;&nbsp;&amp;&nbsp;&nbsp;  Information A&eacute;ronautique</h3>
+						<br>
+						<h4 id="dateTitleDay"></br></h3>
+						<h4 id="dateTitleTime" style="font-family: monospace;"></h3>
+					</section>
+				</section>
+		
+			              
+		
+			
+			    <!-- Front a 12h -->
+			    <section>
+                    <h4>Prévision Front à 12H</h4>
+                    <script>
+                        document.write('<img src="https://cdn.knmi.nl/knmi/map/page/weer/waarschuwingen_verwachtingen/weerkaarten/PL'+day+'12_large.gif" style="height:620px">');
+                    </script>
+			    </section>
+			
+			
+			    <!-- Visible FR -->
+				<section>
+                    <h4>Satellite visible France</h4>
+                    <img src="https://neige.meteociel.fr/satellite/anim_vis_fr.gif" style="height:620px;">
+			    </section>
+			
+			    <!-- Radar FR -->
+			    <section>
+                    <h4>Radar pluie</h4>
+                    <img src="http://www.meteo60.fr/radars/animation-radar-france.gif" style="height:620px;">
+			    </section>
+			
+
+				<!-- Vents   -->
+				<!-- CARTES DES VENTS -->
+				
+				<section>
+					<h4>Carte des vents à 12H UTC à 10m</h4>
+					<img src="http://www.ac-sologne.fr/briefing/aeroweb/regionalfrancewind-pmer-10m12H.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				
+				<section>
+					<h4>Carte des vents à 12H UTC à 1500m</h4>
+					<img src="http://www.ac-sologne.fr/briefing/aeroweb/regionalfrancewind-fl05015H.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				
+				<section>
+					<h4>Carte des vents à 15H UTC à 10m</h4>
+					<img src="http://www.ac-sologne.fr/briefing/aeroweb/regionalfrancewind-pmer-10m15H.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				
+				<section>
+					<h4>Carte des vents à 15H UTC à 1500m</h4>
+					<img src="http://www.ac-sologne.fr/briefing/aeroweb/regionalfrancewind-fl05015H.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+			
+			
+            			
+				<!-- sondage météociel -->
+            	<section>
+				<section>
+                    <h4>Sondage modélisé Météociel / Cambrai</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=50.1425&lon=3.265" width="1024" height="768"></iframe>
+			    </section>
+			
+			    <section>
+                    <h4>Sondage modélisé Météociel / Lille</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=50.687&amp;lon=3.075" width="1024" height="768"></iframe>
+			    </section>
+				
+				<section>
+                    <h4>Sondage modélisé Météociel / Charleville</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=49.78381&amp;lon=4.64726" width="1024" height="768"></iframe>
+			    </section>
+				
+				<section>
+                    <h4>Sondage modélisé Météociel / Reims</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=49.209&amp;lon=4.157" width="1024" height="768"></iframe>
+			    </section>
+				
+				<section>
+                    <h4>Sondage modélisé Météociel / Amiens</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=49.872&amp;lon=2.388" width="1024" height="768"></iframe>
+			    </section>
+				
+				
+				<section>
+                    <h4>Sondage modélisé Météociel / Abbeville</h4>
+                    <iframe src="http://www.meteociel.fr/modeles/sondage2arome.php?archive=0&ech=6&map=1&wrf=0&region=&type=1&lat=50.142&amp;lon=1.831" width="1024" height="768"></iframe>
+			    </section>
+				
+				</section>
+			
+				<!-- Autres liens MTO -->
+				<section>
+					<h4>Liens météo</h4>
+					<ul>
+						<li><a href="https://meteo-parapente.com/" target="mtoparapente">Météo Parapente</a></li>
+						<li><a href="https://www.meteociel.fr/modeles/arome.php" target="meteociel">Meteociel - modèle AROME</a></li>
+						<li><a href="https://www.topmeteo.eu/weather/gliding!charts" target="topmeteo">TopMeteo (accès protégé)</a></li>
+						<li><a href="http://aviation.meteo.fr/login.php" target="aeroweb">Aeroweb - Météo-France (accès protégé)</a></li>
+				</section>
+			
+				<!-- Carte OACI -->
+				<section>
+				<h4>Carte OACI</h4>
+				<iframe width="1024" height="768" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" sandbox="allow-forms allow-scripts allow-same-origin" src="https://www.geoportail.gouv.fr/embed/visu.html?c=3.265,50.1425&amp;z=10&amp;l0=GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-OACI::GEOPORTAIL:OGC:WMTS(1)&amp;permalink=yes" allowfullscreen></iframe>	
+				</section>
+			
+			
+				<!-- Espaces aériens belges   -->
+				<section>
+				<section>
+					<h4>Espaces aériens belges</h4>
+					<p style="font-size: 28px;">Consultez <br><a href="https://www.lvzc.be/lfamoduleJ.php" target="_blank">le site de la LVZC</a><br> pour connaitre le statut des LFA-Golf.</p>
+					
+					
+					<p style="font-size: 18px;"> 
+					
+					Rappels : <br>
+					Toute la Belgique est contr&ocirc;l&eacute;e au-dessus de 4500 ft AMSL.  <br>
+					LFA-Golf active = espace a&eacute;rien d&eacute;class&eacute; en G (c&agrave;d non-contr&ocirc;l&eacute;)  <br>
+					Voir cartes ci-dessous pour les LFA-Golf 1, 2 et 5...</p>
+					<!-- <iframe src="https://www.lvzc.be/lfamoduleJ.php" height="640" width="1200"></iframe>-->
+				</section>
+				<section>
+					<h4>Low Flying Area G1</h4>
+					<h5>[4500FT (1371m) AMSL - FL50]</h5>
+					<img src="https://www.lvzc.be/images/VFRgids_K2.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				<section>
+					<h4>Low Flying Area 2</h4>
+					<h5>[FL55 - FL75]</h5>
+					<img src="https://www.lvzc.be/images/VFRgids_K3.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				<section>
+					<h4>Low Flying Area 5</h4>
+					<h5>[FL75 - FL95 (excl.)]</h5>
+					<img src="https://www.lvzc.be/images/VFRgids_K4.png" style="max-width:100%; max-height:100%; height:620px">
+				</section>
+				</section>
+			
+				<!-- un tableau des FL du jour en fonction du QNH, et en dessous la page que j'utilise pour determiner le qnh du jour, les heures de coucher du soleil etc etc -->
+			    <!-- <section> -->
+			    <section>
+                    <h4>Table des Niveaux de Vol</h4>
+					
+					<p style="font-size: 28px;">Vérifiez les données avec l'<a href="https://marcterrier.fr/briefing/abaque_conversion_fl.pdf" target="blank">abaque</a> FFVP</p>
+					<p style="font-size: 28px;">LFA-Golf : modifiez le QNH pour correspondre au <a href="https://www.lvzc.be/lfamoduleJ.php" target="_blank">site de la LVZC</a></p>
+					
+					<div style="width:100%; margin:auto;">	
+						<!-- INDISPENSABLE : id="rawMetar"  -->
+						<h5 style="font-size: 20px;" id="rawMetar"></h5>
+					</div>
+					
+                    <div class="div_qnh">
+            
+                        <div style="display:block; ">
+                            <table class="alti" >
+                                <tbody>
+                                <tr>
+                                    <th>QNH</th><th><input type="text" id="qnh" class="big_input_qnh" value="1000"></th><th>FL</th><th class='centre'>Altitude du jour</th>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td>4500ft</td><td class='centre'>1371</td>
+                                </tr>
+                                <tr>
+                                    <td>Delta</td><td id="delta"></td><td>50</td><td class='centre' id='fl50'></td>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td>65</td><td class='centre' id='fl65'></td>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td>75</td><td class='centre' id='fl75'></td>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td>95</td><td class='centre' id='fl95'></td>
+                                </tr>
+                                <tr>
+                                    <td></td><td></td><td>115</td><td class='centre' id='fl115'></td>
+                                </tr>
+                            </tbody></table>
+                        </div>
+                    </div>
+			        
+			    </section>
+				
+
+		
+				<!-- NOTAM -->
+                <section data-autoslide="1">
+                    <iframe src="http://www.notaminfo.com/francemap" width="1024" height="768"></iframe>
+                </section>
+			
+				<!-- Autres liens info aero -->
+				<section>
+					<h4>Liens Information aéronautique</h4>
+					<p style="font-size: 18px;">Ces sites de la DGAC contiennent l'information a&eacute;ronautique de r&eacute;f&eacute;rence. <br>Avant tout vol en tant que commandant de bord, consultez-les !</p>
+					<ul>
+						<li><a href="https://sofia-briefing.aviation-civile.gouv.fr/sofia/pages/prepavol.html" target="SOFIA">DGAC - SOFIA Briefing</a></li>
+						<li><a href="https://www.sia.aviation-civile.gouv.fr/documents/supaip/aip/id/6" target="SUPAIP">DGAC - SUPAIP</a></li
+					</ul>
+				</section>
+			
+			
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: false,
+				center: true,
+                touch: true,
+                mouseWheel: false,
+                loop: true,
+
+				transition: 'default', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					//{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					//{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					//{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					//{ src: 'plugin/zoom-js/zoom.js', async: true },
+					//{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/gallery/gallery.plugin.js', async: true, condition: function() { return !!document.querySelector('.gallery'); } }
+
+				]
+			});
+            Reveal.configure({
+                autoSlide: 5000
+            });
+            Reveal.toggleAutoSlide();
+		</script>
+		
+		
+		<script>
+		function start(){
+			// Choisissez la source du metar ; ici c'est LFML
+			var url="https://k3qzzqqv5k4iotlypcpsjpvzqu0nbrzc.lambda-url.eu-west-1.on.aws/?listeIndicatifsOACI=LFQQ"
+			fetch(url)
+			  .then(response => {
+				console.log(response);
+				return response.json(); // Pour lire dans la suite la réponse en tant que JSON
+			   })
+			  .then(data => {   // On traite les données ici :
+				console.log(data);
+				console.log(data.lesMétars[0]);
+				console.log(data.lesMétars[0].qnh);
+				console.log(data.lesMétars[0].indicatif);
+				document.getElementById("rawMetar").innerHTML = data.lesMétars[0].rawMetar;
+				document.getElementById("qnh").value = data.lesMétars[0].qnh;
+				actualise_tableau($("#qnh").val());  // Mise à jour initiale du tableau des altitudes selon le choix de la source du metar
+			  })
+			  .catch(error => {
+				console.error('Une erreur s\'est produite:', error);
+			  })
+		};
+		function actualise_tableau(qnh_value){
+			var mhPa = 8.5344;
+			var pMer = 1013.25;
+			var delta = (qnh_value - pMer) * mhPa;
+			$("#delta").text(Math.round(delta));
+			fl = delta*1 + 5943*1;
+			$("#fl195").text(Math.round(fl));
+			fl = delta*1 + 4724*1;
+			$("#fl155").text(Math.round(fl));
+			fl = delta*1 + 4419*1;
+			$("#fl145").text(Math.round(fl));
+			fl = delta*1 + 3810*1;
+			$("#fl125").text(Math.round(fl));
+			fl = delta*1 + 3505*1;
+			$("#fl115").text(Math.round(fl));
+			fl = delta*1 + 2895.6*1;
+			$("#fl95").text(Math.round(fl));
+			fl = delta*1 + 2591*1;
+			$("#fl85").text(Math.round(fl));
+			fl = delta*1 + 2286*1;
+			$("#fl75").text(Math.round(fl));
+			fl = delta*1 + 1981*1;
+			$("#fl65").text(Math.round(fl));
+			fl = delta*1 + 1524*1;
+			$("#fl50").text(Math.round(fl));
+		};
+		$(document).ready(function(){
+		start();
+		});
+		$("#qnh").on("input",function(){   // Mise à jour du tableau des alttitudes quand un QNH est saisi à la main
+		actualise_tableau($(this).val())
+		});
+	</script>
+	</body>
+</html>
